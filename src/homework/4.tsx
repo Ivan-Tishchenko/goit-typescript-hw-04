@@ -1,10 +1,22 @@
-import React, { createContext, useMemo, useState, useContext } from "react";
+import React, {
+  createContext,
+  useMemo,
+  useState,
+  useContext,
+} from "react";
 import noop from "lodash/noop";
 
 type MenuIds = "first" | "second" | "last";
 type Menu = { id: MenuIds; title: string };
 
 // Додати тип Menu Selected
+type SelectedMenu = {
+  id?: MenuIds;
+};
+
+type MenuSelected = {
+  selectedMenu: SelectedMenu;
+};
 
 const MenuSelectedContext = createContext<MenuSelected>({
   selectedMenu: {},
@@ -12,17 +24,22 @@ const MenuSelectedContext = createContext<MenuSelected>({
 
 // Додайте тип MenuAction
 
+type MenuAction = {
+  onSelectedMenu: (SelectedMenu: SelectedMenu) => void;
+};
+
 const MenuActionContext = createContext<MenuAction>({
   onSelectedMenu: noop,
 });
 
 type PropsProvider = {
-  children; // Додати тип для children
+  children: React.ReactNode; // Додати тип для children
 };
 
 function MenuProvider({ children }: PropsProvider) {
   // Додати тип для SelectedMenu він повинен містити { id }
-  const [selectedMenu, setSelectedMenu] = useState<SelectedMenu>({});
+  const [selectedMenu, setSelectedMenu] =
+    useState<SelectedMenu>({});
 
   const menuContextAction = useMemo(
     () => ({
@@ -40,15 +57,19 @@ function MenuProvider({ children }: PropsProvider) {
 
   return (
     <MenuActionContext.Provider value={menuContextAction}>
-      <MenuSelectedContext.Provider value={menuContextSelected}>
+      <MenuSelectedContext.Provider
+        value={menuContextSelected}
+      >
         {children}
       </MenuSelectedContext.Provider>
     </MenuActionContext.Provider>
   );
 }
 
+
+
 type PropsMenu = {
-  menus; // Додайте вірний тип для меню
+  menus: Menu[]; // Додайте вірний тип для меню
 };
 
 function MenuComponent({ menus }: PropsMenu) {
@@ -57,12 +78,19 @@ function MenuComponent({ menus }: PropsMenu) {
 
   return (
     <>
-      {menus.map((menu) => (
-        <div key={menu.id} onClick={() => onSelectedMenu({ id: menu.id })}>
-          {menu.title}{" "}
-          {selectedMenu.id === menu.id ? "Selected" : "Not selected"}
-        </div>
-      ))}
+      {menus.map(
+        (menu) => (
+          <div
+            key={menu.id}
+            onClick={() => onSelectedMenu({ id: menu.id })}
+          >
+            {menu.title}{" "}
+            {selectedMenu.id === menu.id
+              ? "Selected"
+              : "Not selected"}
+          </div>
+        )
+      )}
     </>
   );
 }
